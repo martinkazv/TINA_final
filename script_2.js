@@ -13,14 +13,19 @@ var act_speed = 0;
 var avg_speed = 0;
 
 
-//create car icon for marker
+//create icon class
 var markerIcon = L.Icon.extend({
     options: {
-        iconSize: [14, 35]
+        iconSize: [14, 35],
+        iconAnchor: [7, 0],
     }
 });
 
+function toRadians(angle) {
+    return angle * (Math.PI / 180);
+}
 
+//create car icon
 var carIcon = new markerIcon({iconUrl: './assets/images/bluecar.png'});
 
 $(document).ready(function () {
@@ -39,8 +44,34 @@ $(document).ready(function () {
     var line = L.polyline(route, {color: 'blue'}).addTo(mymap);
 
 
-    //inicialize Car marker handle
-    marker = L.marker([0, 0], {icon: carIcon, angle: +45 * 180 / Math.PI}).addTo(mymap);
+    //create function for rotating marker   source https://www.mapbox.com/mapbox.js/example/v1.0.0/rotating-controlling-marker/
+    L.RotatedMarker = L.Marker.extend({
+        options: {angle: 0},
+        _setPos: function (pos) {
+            L.Marker.prototype._setPos.call(this, pos);
+            if (L.DomUtil.TRANSFORM) {
+                // use the CSS transform rule if available
+                this._icon.style[L.DomUtil.TRANSFORM] += ' rotate(' + this.options.angle + 'deg)';
+            } else if (L.Browser.ie) {
+                // fallback for IE6, IE7, IE8
+                var rad = this.options.angle * L.LatLng.DEG_TO_RAD,
+                    costheta = Math.cos(rad),
+                    sintheta = Math.sin(rad);
+                this._icon.style.filter += ' progid:DXImageTransform.Microsoft.Matrix(sizingMethod=\'auto expand\', M11=' +
+                    costheta + ', M12=' + (-sintheta) + ', M21=' + sintheta + ', M22=' + costheta + ')';
+            }
+        }
+    });
+
+// create rotation marker constructor
+    L.rotatedMarker = function (pos, options) {
+        return new L.RotatedMarker(pos, options);
+    };
+
+    //create new marker
+    var marker = L.rotatedMarker(new L.LatLng(48.166377, 17.18168), {
+        icon: carIcon
+    }).addTo(mymap);
 
 
     // catch the stream of data
@@ -72,10 +103,18 @@ $(document).ready(function () {
                 //redraw line according new coordinates
                 line = L.polyline(route, {color: 'blue'}).addTo(mymap);
 
+                //calculate the angle between two points https://stackoverflow.com/questions/6189258/angle-between-two-known-android-geolocations
+                var y = Math.sin(toRadians(lo2 - lo1)) * Math.cos(toRadians(la2));
+                var x = Math.cos(toRadians(la1)) * Math.sin(toRadians(la2)) - Math.sin(toRadians(la1)) * Math.cos(toRadians(la2)) * Math.cos(toRadians(lo2 - lo1));
+                var angle = Math.atan2(y, x);
+                angle = angle * 180 / Math.PI;
+
+                //rotate the marker
+                marker.options.angle = angle;
+
                 //move the marker
                 var newLatLng = new L.LatLng(la2, lo2);
                 marker.setLatLng(newLatLng);
-                // marker.setRotationAngle(45);
 
                 //calculate the distance between last two points in km also speed in km/s
                 var delta_distance = distanceInKm(la1, lo1, la2, lo2);
