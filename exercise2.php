@@ -19,42 +19,51 @@
 
 </head>
 <body>
-<div class="container">
+<div class="container-fluid">
+    <div class="row">
 
-    <div style="height: 400px; width: 600px" id="mapid"></div>
+        <div class="col-8">
+            <div style="height: 600px; width: 900px" id="mapid"></div>
+            <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+                    integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+                    crossorigin=""></script>
+        </div>
 
-    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
-            integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
-            crossorigin=""></script>
+        <div class="col-md-4">
+            <div class="row">
+                <h1>Prekonana vzdialenost [km]:</h1>
+                <div id="dist_seg"></div>
+            </div>
 
+            <div class="row">
+                <h1>Priemerna rychlost [km/h]:</h1>
+                <div id="avg_speed_seg"></div>
+            </div>
 
-</div>
-
-<div class="container">
-    <canvas id="clock"></canvas>
-</div>
-<div class="container row">
-    <div class="containter col-md-3">
-        <h1>Prekonana vzdialenost [km]:</h1>
-        <div id="dist_seg"></div>
+            <div class="row">
+                <div class="col">
+                    <canvas style="width: 400px; height: 200px" id="clock"></canvas>
+                </div>
+                <div class="col">
+                    <h1>Aktualna rychlost:</h1>
+                    <canvas id="actual_speed"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 
-
-    <div class="containter col-md-3 col">
-        <h1>Priemerna rychlost [km/h]:</h1>
-        <div id="avg_speed_seg"></div>
-    </div>
-
-    <div class="col-md-auto col">
-        <h1>Graf rýchlosti:</h1>
-        <div id="graph"></div>
+    <div class="row">
+        <div class="col">
+            <h1>Graf rýchlosti:</h1>
+            <div id="graph"></div>
+        </div>
     </div>
 </div>
 
-<div class="container">
-    <h1>Aktualna rychlost:</h1>
-    <canvas id="actual_speed"></canvas>
-</div
+
+
+
+
 
 
 </body>

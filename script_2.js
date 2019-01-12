@@ -1,5 +1,4 @@
 var gaugePS = null;
-var waypoints = [];
 var route = [];
 var date = new Date();
 var canvas_clock = null;
@@ -129,8 +128,8 @@ $(document).ready(function () {
         $('#' + id).sevenSeg({
             value: value,
             digits: 5,
-            colorOff: '#202020',
-            colorBackground: '#292b2c',
+            colorOff: 'white',
+            colorBackground: 'white',
             colorOn: color
         });
     }
@@ -236,15 +235,15 @@ $(document).ready(function () {
         };
         var data = [speeds];
         var layout = {
-            paper_bgcolor: "rgb(41,43,44)",
-            plot_bgcolor: "rgb(41,43,44)",
+            paper_bgcolor: "white",
+            plot_bgcolor: "white",
             xaxis: {
                 showgrid: false,
-                color: '#fff'
+                color: 'black'
             },
             yaxis: {
                 showgrid: false,
-                color: '#fff'
+                color: 'black'
             },
 
         };
@@ -261,7 +260,7 @@ $(document).ready(function () {
                 renderTo: 'actual_speed',
                 width: 200,
                 height: 200,
-                units: 'Km/h',
+                units: 'km/h',
                 minValue: 0,
                 maxValue: 200,
                 majorTicks: ['0', '20', '40', '60', '80', '100', '120', '140', '160', '180', '200'],
@@ -274,56 +273,9 @@ $(document).ready(function () {
                     to: 130,
                     color: 'rgba(220, 145, 59, 0.75)'
                 }, {from: 130, to: 200, color: 'rgba(225, 7, 23, 0.5)'}],
-                valueInt: 1,
-                valueDec: 0,
-                colorPlate: "#fff",
-                colorMajorTicks: "#686868",
-                colorMinorTicks: "#686868",
-                colorTitle: "#000",
-                colorUnits: "#000",
-                colorNumbers: "#686868",
-                valueBox: true,
-                colorValueText: "#000",
-                colorValueBoxRect: "#fff",
-                colorValueBoxRectEnd: "#fff",
-                colorValueBoxBackground: "#fff",
-                colorValueBoxShadow: false,
-                colorValueTextShadow: false,
-                colorNeedleShadowUp: true,
-                colorNeedleShadowDown: false,
-                colorNeedle: "rgba(200, 50, 50, .75)",
-                colorNeedleEnd: "rgba(200, 50, 50, .75)",
-                colorNeedleCircleOuter: "rgba(200, 200, 200, 1)",
-                colorNeedleCircleOuterEnd: "rgba(200, 200, 200, 1)",
-                borderShadowWidth: 0,
-                borders: true,
-                borderInnerWidth: 0,
-                borderMiddleWidth: 0,
-                borderOuterWidth: 5,
-                colorBorderOuter: "#fafafa",
-                colorBorderOuterEnd: "#cdcdcd",
-                needleType: "arrow",
-                needleWidth: 2,
-                needleCircleSize: 7,
-                needleCircleOuter: true,
-                needleCircleInner: false,
-                animationDuration: 1500,
-                animationRule: "dequint",
-                fontNumbers: "Verdana",
-                fontTitle: "Verdana",
-                fontUnits: "Verdana",
-                fontValue: "Led",
-                fontValueStyle: 'italic',
-                fontNumbersSize: 20,
-                fontNumbersStyle: 'italic',
-                fontNumbersWeight: 'bold',
-                fontTitleSize: 24,
-                fontUnitsSize: 22,
-                fontValueSize: 50,
-                animatedValue: true
+
             });
             gaugePS.draw();
-
             gaugePS.value = value;
         }
     }
