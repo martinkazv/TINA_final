@@ -1,4 +1,4 @@
-var gaugePS = null;
+var gauge = null;
 var route = [];
 var date = new Date();
 var canvas_clock = null;
@@ -13,14 +13,15 @@ var act_speed = 0;
 var avg_speed = 0;
 
 
-var LeafIcon = L.Icon.extend({
+//create car icon for marker
+var markerIcon = L.Icon.extend({
     options: {
         iconSize: [14, 35]
     }
 });
 
 
-var carIcon = new LeafIcon({iconUrl: './assets/images/bluecar.png'});
+var carIcon = new markerIcon({iconUrl: './assets/images/bluecar.png'});
 
 $(document).ready(function () {
 
@@ -29,7 +30,7 @@ $(document).ready(function () {
     var mymap = L.map('mapid').setView([48.166377, 17.18168], 15);
     L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        maxZoom: 18,
+        maxZoom: 25,
         id: 'mapbox.streets',
         accessToken: 'sk.eyJ1IjoibWFydGlua2F6diIsImEiOiJjanFvNWcxaDQwM2dnM3htaTF5b2Q0dmhyIn0.w8NqEomkQMeDXqJzL86rUQ'
     }).addTo(mymap);
@@ -39,9 +40,10 @@ $(document).ready(function () {
 
 
     //inicialize Car marker handle
-
     marker = L.marker([0, 0], {icon: carIcon, angle: +45 * 180 / Math.PI}).addTo(mymap);
 
+
+    // catch the stream of data
     if (typeof(EventSource) !== "undefined") {
         var source = new EventSource("http://vmzakova.fei.stuba.sk/tina/route1.php");
 
@@ -50,51 +52,55 @@ $(document).ready(function () {
             if (e.data === 'END-OF-STREAM') {
                 source.close();
             }
+            //when data recieved
             else {
                 var data = JSON.parse(e.data);
 
-
                 // Add data to route for polyline
                 route.push([parseFloat(data.latitude), parseFloat(data.longitude)]);
+
+                //add coordinates to separate arrays
                 latitude.push(data.latitude);
                 longitude.push(data.longitude);
 
+                //get latest two points
                 var la2 = latitude[latitude.length - 1];
                 var la1 = latitude[latitude.length - 2];
                 var lo2 = longitude[longitude.length - 1];
                 var lo1 = longitude[longitude.length - 2];
 
-
-                //update line according new coordinates
+                //redraw line according new coordinates
                 line = L.polyline(route, {color: 'blue'}).addTo(mymap);
 
-                var newLatLng = new L.LatLng(latitude.slice(-1)[0], longitude.slice(-1)[0]);
+                //move the marker
+                var newLatLng = new L.LatLng(la2, lo2);
                 marker.setLatLng(newLatLng);
                 // marker.setRotationAngle(45);
 
-
+                //calculate the distance between last two points in km also speed in km/s
                 var delta_distance = distanceInKm(la1, lo1, la2, lo2);
+
+                //add to total distance
                 distance += delta_distance;
 
+                //calculate actual speed in km/h
                 act_speed = delta_distance * 3600;
+
+                //add to speeds array
                 speed.push(act_speed);
 
-                // vypocet priemeru
-                priemer = distance / speed.length;
-                avg_speed = priemer * 3600;
+                // calculate avg speed
+                avg_speed = (distance / speed.length) * 3600;
 
-                console.log(avg_speed);
                 date = new Date(data['timestamp'] * 1000);
                 drawClock(date);
                 drawSgmentDisplay('dist_seg', distance.toFixed(3), 'blue');
                 drawSgmentDisplay('speed_seg', act_speed.toFixed(2), 'blue');
-                drawSgmentDisplay('avg_speed_seg', avg_speed.toFixed(3), 'blue');
+                drawSgmentDisplay('avg_speed_seg', avg_speed.toFixed(2), 'blue');
                 drawSpeedGraph(speed, speed.length);
                 drawGauge(act_speed);
-
             }
         }, false);
-
     }
 
 
@@ -153,7 +159,6 @@ $(document).ready(function () {
         drawFace(ctx, radius);
         drawNumbers(ctx, radius);
         drawTime(ctx, radius, time);
-
     }
 
 
@@ -198,7 +203,6 @@ $(document).ready(function () {
     }
 
     function drawTime(ctx, radius, time) {
-        var now = new Date();
         var hour = time.getHours();
         var minute = time.getMinutes();
         var second = time.getSeconds();
@@ -245,7 +249,6 @@ $(document).ready(function () {
                 showgrid: false,
                 color: 'black'
             },
-
         };
         Plotly.newPlot('graph', data, layout);
     }
@@ -253,10 +256,10 @@ $(document).ready(function () {
 
     //draw gauge
     function drawGauge(value) {
-        if (gaugePS)
-            gaugePS.value = value;
+        if (gauge)
+            gauge.value = value;
         else {
-            gaugePS = new RadialGauge({
+            gauge = new RadialGauge({
                 renderTo: 'actual_speed',
                 width: 200,
                 height: 200,
@@ -268,17 +271,14 @@ $(document).ready(function () {
                 ticksAngle: 270,
                 startAngle: 45,
                 strokeTicks: true,
-                highlights: [{from: 0, to: 90, color: 'rgba(127, 191, 63, 0.5)'}, {
-                    from: 90,
-                    to: 130,
+                highlights: [{from: 0, to: 70, color: 'rgba(127, 191, 63, 0.5)'}, {
+                    from: 70,
+                    to: 140,
                     color: 'rgba(220, 145, 59, 0.75)'
-                }, {from: 130, to: 200, color: 'rgba(225, 7, 23, 0.5)'}],
-
+                }, {from: 140, to: 200, color: 'rgba(225, 7, 23, 0.5)'}],
             });
-            gaugePS.draw();
-            gaugePS.value = value;
+            gauge.draw();
+            gauge.value = value;
         }
     }
-
-
 });
